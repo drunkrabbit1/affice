@@ -2,8 +2,6 @@ import requests
 
 API_KEY = ''
 DOMAIN = ''
-response_offer = requests.get(f'{DOMAIN}/3.0/partner/offers', headers={"API-Key": API_KEY})
-json_response_offers = response_offer.json()['offers']
 
 
 def get_json_conversions():
@@ -15,20 +13,30 @@ def get_json_conversions():
     return response_conversions.json()['conversions']
 
 
-for offer in json_response_offers:
-    id = offer['id']
-    title = offer['title']
-    payments = offer['payments']
-    countries = sum(list(payment.get('countries') for payment in payments), [])
+def run(response_offer):
+    json_response_offers = response_offer.json()['offers']
+    for offer in json_response_offers:
+        id = offer['id']
+        title = offer['title']
+        payments = offer['payments']
+        countries = (sum(list(payment.get('countries') for payment in payments), []))
+        countries_set = set(countries) if countries else None
 
-    conversions = get_json_conversions()
-    conversion = conversions[0] if conversions else {}
-    click_id = conversion.get('clickid')
-    action_id = conversion.get('action_id')
+        conversions = get_json_conversions()
+        conversion = conversions[0] if conversions else {}
+        click_id = conversion.get('clickid')
+        action_id = conversion.get('action_id')
 
-    text = f"id : {id} \n" \
-           f"title :{title} \n" \
-           f"countries: {countries} \n" \
-           f"click_id: {click_id} \n" \
-           f"action_id: {action_id}"
-    print(text)
+        text = f"id : {id} \n" \
+               f"title :{title} \n" \
+               f"countries: {countries_set} \n" \
+               f"click_id: {click_id} \n" \
+               # f"action_id: {action_id}"
+        print(text)
+
+
+partner_offers = requests.get(f'{DOMAIN}/3.0/partner/offers', headers={"API-Key": API_KEY})
+offers = requests.get(f'{DOMAIN}/3.0/offers', headers={"API-Key": API_KEY})
+
+# run(partner_offers)
+run(offers)
