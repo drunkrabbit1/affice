@@ -4,7 +4,7 @@ API_KEY = ''
 DOMAIN = ''
 
 
-def get_json_conversions():
+def get_json_conversions(id):
     response_conversions = requests.get(f'{DOMAIN}/3.0/stats/conversions',
                                         headers={"API-Key": API_KEY},
                                         params={"offer[]": id,
@@ -22,21 +22,23 @@ def run(response_offer):
         countries = (sum(list(payment.get('countries') for payment in payments), []))
         countries_set = set(countries) if countries else None
 
-        conversions = get_json_conversions()
+        conversions = get_json_conversions(id)
         conversion = conversions[0] if conversions else {}
         click_id = conversion.get('clickid')
         action_id = conversion.get('action_id')
 
-        text = f"id : {id} \n" \
-               f"title :{title} \n" \
+        text = f"offer_id : {id} \n" \
+               f"offer_title :{title} \n" \
                f"countries: {countries_set} \n" \
-               f"click_id: {click_id} \n" \
-               # f"action_id: {action_id}"
-        print(text)
+               f"conversion_id: {conversion.get('id')} \n" \
+               f"click_id: {click_id} \n"\
+               f"action_id: {action_id}"
+        print(text, "\n")
 
 
 partner_offers = requests.get(f'{DOMAIN}/3.0/partner/offers', headers={"API-Key": API_KEY})
 offers = requests.get(f'{DOMAIN}/3.0/offers', headers={"API-Key": API_KEY})
 
-# run(partner_offers)
+run(partner_offers)
+print('-----------------------------------------')
 run(offers)
