@@ -1,7 +1,7 @@
 import requests
 
-API_KEY = 'e60a98867d363b0d43b9e7c58ec498ed'
-DOMAIN = 'http://api.cpanomer1.affise.com'
+API_KEY = ''
+DOMAIN = ''
 response_offer = requests.get(f'{DOMAIN}/3.0/partner/offers', headers={"API-Key": API_KEY})
 json_response_offers = response_offer.json()['offers']
 
