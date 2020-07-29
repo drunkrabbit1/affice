@@ -1,29 +1,34 @@
 import requests
 
 API_KEY = 'e60a98867d363b0d43b9e7c58ec498ed'
-response_offer = requests.get('http://api.cpanomer1.affise.com/3.0/offers', headers={"API-Key": API_KEY})
+DOMAIN = 'http://api.cpanomer1.affise.com'
+response_offer = requests.get(f'{DOMAIN}/3.0/partner/offers', headers={"API-Key": API_KEY})
 json_response_offers = response_offer.json()['offers']
+
+
+def get_json_conversions():
+    response_conversions = requests.get(f'{DOMAIN}/3.0/stats/conversions',
+                                        headers={"API-Key": API_KEY},
+                                        params={"offer[]": id,
+                                                "date_from": "1990-01-01",
+                                                "date_to": "2020-07-29"})
+    return response_conversions.json()['conversions']
+
 
 for offer in json_response_offers:
     id = offer['id']
     title = offer['title']
     payments = offer['payments']
     countries = sum(list(payment.get('countries') for payment in payments), [])
-    countries_set = set(list(countre for countre in countries))
-    response_stats_by_offer = requests.get('http://api.cpanomer1.affise.com/3.0/stats/getbyprogram',
-                                       params={
-                                           "filter[date_from]": "1990-01-01",
-                                           "filter[date_to]": "2020-07-29",
-                                       },
-                                       headers={"API-Key": API_KEY})
-    json_response_stats_by_offer = response_stats_by_offer.json()['stats'][0]['slice']['offer']
-    # if json_response_stats_by_offer['pagination']['total_count']:
-    #     print(response_stats_by_offer.text)
-    print(json_response_stats_by_offer['id'])
 
-    # print([country['countries'] for country in offer['payments']])
-# print(response3.json()['stats'][0])
-# json_response2 = response2.json()
-# for res in json_response2['conversions']:
-#     print(res['offer'])
-# print(json_response2)
+    conversions = get_json_conversions()
+    conversion = conversions[0] if conversions else {}
+    click_id = conversion.get('clickid')
+    action_id = conversion.get('action_id')
+
+    text = f"id : {id} \n" \
+           f"title :{title} \n" \
+           f"countries: {countries} \n" \
+           f"click_id: {click_id} \n" \
+           f"action_id: {action_id}"
+    print(text)
